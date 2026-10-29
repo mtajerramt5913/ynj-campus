@@ -1,32 +1,19 @@
 // YNJ Campus : comptes, rôles, filières et ressources sur Supabase.
-// Tuteurs, séances et badges de séances : données de démonstration (stockées dans le navigateur).
+// Tuteurs, disponibilités et séances en ligne : Supabase + Google Meet (fonction create-meet).
 const $=s=>document.querySelector(s),A=$('#app');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sb=(window.YNJ&&YNJ.SUPABASE_URL&&window.supabase)?supabase.createClient(YNJ.SUPABASE_URL,YNJ.SUPABASE_ANON_KEY):null;
-let P=null,SP=[],RS={},rid=0,lastF='',forceTop=false,D={day:'Mardi',hr:'10:00'},tt;
+let P=null,SP=[],RS={},rid=0,lastF='',forceTop=false,D={k:'',iso:''},tt;
 let S={sp:null,kind:'cours',sem:'',q:'',tq:'',tf:'Toutes',tab:'avenir'};
 const KIND={cours:'Cours',exercice:'Exercices',examen:'Examens'},LV={licence:'Licence',master:'Master',doctorat:'Doctorat'};
-const DAYS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],HRS=['09:00','10:00','11:00','14:00','15:00','16:00'];
-const STL={attente:'En attente',confirmee:'Confirmée',terminee:'Terminée',refusee:'Refusée',annulee:'Annulée'};
-const T=[
-{id:1,n:'Youssef El Amrani',r:'Doctorant en mathématiques',s:4.9,c:32,f:'Mathématiques',on:1,tags:['Analyse','Algèbre','Statistiques','Probabilités'],bio:'Passionné par la transmission du savoir, je t’aide à comprendre les concepts difficiles et à préparer tes examens.'},
-{id:2,n:'Sara Ouhmadi',r:'Master en intelligence artificielle',s:4.8,c:18,f:'Informatique',on:1,tags:['Python','Machine learning','IA'],bio:'J’explique la programmation Python et les bases du machine learning avec des exemples concrets.'},
-{id:3,n:'Omar Rachidi',r:'Doctorant en physique',s:4.7,c:25,f:'Physique',on:0,tags:['Mécanique','Thermodynamique'],bio:'Je t’aide à relier la théorie aux exercices de mécanique et de thermodynamique.'}];
-const SEED=[
-{id:1,tutor:'Sara Ouhmadi',stu:'moi',sub:'Python, boucles et fonctions',when:'Vendredi 14:00',mode:'En ligne',status:'confirmee'},
-{id:2,tutor:'Omar Rachidi',stu:'moi',sub:'Mécanique, cinématique',when:'Lundi 09:00',mode:'Bibliothèque FSSM',status:'terminee'},
-{id:3,tutor:'moi',stu:'Amina Benali',sub:'Analyse, séries numériques',when:'Mardi 10:00',mode:'En ligne',q:'Je n’arrive pas à déterminer la convergence d’une série numérique.',status:'attente'},
-{id:4,tutor:'moi',stu:'Karim El Idrissi',sub:'Statistiques, test du khi-deux',when:'Mercredi 11:00',mode:'Bibliothèque FSSM',status:'attente'}];
-let L={st:{n:0,h:0},reqs:SEED};
-const lk=()=>'ynj2-'+(P?P.id:'x');
-const saveL=()=>{try{localStorage.setItem(lk(),JSON.stringify(L))}catch(e){}};
+const DAYS=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],WD=[1,2,3,4,5,6,0];
+const STL={pending:'En attente',confirmed:'Confirmée',done:'Terminée',refused:'Refusée',cancelled:'Annulée'};
 const IC={book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M20 17v4H6.5a2.5 2.5 0 0 1 0-4"/>',
 users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14.5c2.6.2 4.1 1.8 4.5 4.5"/>',
 cal:'<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
 star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>'};
 const ic=n=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
-const STAR='<svg viewBox="0 0 100 100" aria-hidden="true"><g fill="#f5b820"><rect x="22" y="22" width="56" height="56"/><rect x="22" y="22" width="56" height="56" transform="rotate(45 50 50)"/></g><circle cx="50" cy="50" r="13" fill="#2438c8"/></svg>';
-const LOGO=STAR;
+const STAR='<img src="assets/mark.png" alt="">',LOGO=STAR;
 const NAVS=[['resources','book','Ressources'],['tutors','users','Tuteurs'],['sessions','cal','Séances'],['badges','star','Profil']];
 const AUTHR=NAVS.map(n=>n[0]);
 
@@ -41,19 +28,19 @@ const tabs=f=>NAVS.map(n=>`<a href="#${n[0]}" class="${f===n[0]?'on':''}" ${f===
 async function loadSp(){if(sb&&!SP.length){const{data}=await sb.from('specialties').select('*').order('establishment').order('name');SP=data||[]}}
 async function loadP(){P=null;if(!sb)return;const{data:{session}}=await sb.auth.getSession();if(!session)return;
  const{data}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();P=data;
- try{const x=JSON.parse(localStorage.getItem(lk()));if(x&&x.reqs)L=x}catch(e){}}
+}
 
 const R={};
 R.home=()=>`${pubTop()}<section class="hero"><div><h1>Yallah Na9raw Jmi3</h1><p class="ar" lang="ar" dir="rtl">يلا نقراو جميع</p>
 <p class="lead">Les étudiants de master et de doctorat de l’Université Cadi Ayyad aident ceux de licence à débloquer ce qu’ils n’ont pas compris, et déposent cours, exercices et examens classés par filière.</p>
 <div class="cta"><a class="btn y" href="#signup">Créer mon compte</a><a class="btn o" href="#login">J’ai déjà un compte</a></div></div><div class="arch">${STAR}</div></section>
-<section class="trio"><div class="card"><h3>Un tuteur de ta filière</h3><p class="m">Pose ta question à quelqu’un qui a déjà réussi cette matière, en ligne ou à la bibliothèque.</p></div>
+<section class="trio"><div class="card"><h3>Un tuteur de ta filière</h3><p class="m">Pose ta question à quelqu’un qui a déjà réussi cette matière, en visio sur Google Meet.</p></div>
 <div class="card"><h3>Une bibliothèque par filière</h3><p class="m">Cours, exercices et examens des années précédentes, triés par semestre, pour les licences fondamentales et les licences en éducation.</p></div>
 <div class="card"><h3>Un engagement reconnu</h3><p class="m">Chaque séance et chaque ressource partagée fait gagner des badges aux tuteurs bénévoles.</p></div></section>
 <h2 class="sec">Comment ça marche</h2><ol class="steps"><li><div><h3>Tu t’inscris</h3><p class="m">Avec ton email universitaire et ta filière.</p></div></li>
 <li><div><h3>Tu trouves de l’aide</h3><p class="m">Consulte les ressources ou demande un rendez-vous à un tuteur.</p></div></li>
 <li><div><h3>Tu avances, puis tu transmets</h3><p class="m">Une fois en master, tu deviens tuteur à ton tour.</p></div></li></ol>
-<p class="m foot">Projet EduHack UCA, par Moussabe Tajerramt et Lamyaa Berry.</p>`;
+<div class="foot"><img src="assets/logo.png" alt="YNJ Campus, Yallah Na9raw Jmi3, plateforme de tutorat entre pairs, Université Cadi Ayyad"><p class="m">Projet EduHack UCA, par Moussabe Tajerramt et Lamyaa Berry.</p></div>`;
 
 R.login=()=>authPage('Se connecter',`<label for="le">Email universitaire</label><input id="le" type="email" autocomplete="email" placeholder="prenom.nom@uca.ma"><label for="lp">Mot de passe</label><input id="lp" type="password" autocomplete="current-password"><button class="btn w" onclick="login()">Se connecter</button><p style="margin-top:14px"><a href="#signup">Créer un compte</a></p>`);
 R.signup=async()=>{await loadSp();const o=SP.map(s=>`<option value="${s.id}">${esc(s.name)}, ${esc(s.establishment)}</option>`).join('');
@@ -126,44 +113,84 @@ async function delRes(id){if(!confirm('Supprimer cette ressource ?'))return;cons
  const{error}=await sb.from('resources').delete().eq('id',id);if(error)return toast(error.message);
  if(r.file_path)await sb.storage.from('resources').remove([r.file_path]);toast('Ressource supprimée.');render()}
 
-// --- Tuteurs et séances (démonstration)
-const tList=()=>{const q=S.tq.toLowerCase(),l=T.filter(t=>(S.tf==='Toutes'||t.f===S.tf)&&(t.n+t.f+t.tags.join(' ')).toLowerCase().includes(q));
- return l.length?l.map(t=>`<button class="card tc" onclick="openT(${t.id})"><div class="row"><div class="av" aria-hidden="true">${esc(t.n.split(' ').map(w=>w[0]).slice(0,2).join(''))}</div><div><h3>${esc(t.n)}</h3><p class="m">${t.r}</p></div></div><p style="margin-top:10px"><b>★ ${t.s}</b> <span class="m">(${t.c} avis)</span></p><div>${t.tags.map(x=>`<span class="tag">${x}</span>`).join('')}</div><p class="m" style="margin-top:8px">${t.on?'En ligne':'Hors ligne'}, bibliothèque FSSM</p></button>`).join(''):'<p class="note">Aucun tuteur trouvé.</p>'};
+// --- Tuteurs, disponibilités et séances (base de données, visio Google Meet)
+const spName=id=>(SP.find(s=>s.id===id)||{}).name||'Filière non précisée';
+const ini=n=>esc(n.split(' ').map(w=>w[0]).slice(0,2).join(''));
+const hm=t=>t.slice(0,5);
+const fmt=d=>new Date(d).toLocaleString('fr-FR',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
+const sortAv=l=>[...l].sort((a,b)=>WD.indexOf(a.weekday)-WD.indexOf(b.weekday)||a.start_time.localeCompare(b.start_time));
+const avSum=t=>(t.availabilities||[]).length?sortAv(t.availabilities).map(a=>`${DAYS[a.weekday]} ${hm(a.start_time)} à ${hm(a.end_time)}`).join(', '):'Pas encore de disponibilités';
+let TU=[],TD=null,SLOTS={};
+function sel(el){el.parentNode.querySelectorAll('.chip').forEach(b=>{const on=b===el;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)})}
+const tList=()=>{const q=S.tq.toLowerCase(),l=TU.filter(t=>(S.tf==='Toutes'||t.specialty_id===P.specialty_id)&&(t.full_name+' '+(t.subjects||'')+' '+spName(t.specialty_id)).toLowerCase().includes(q));
+ return l.length?l.map(t=>`<button class="card tc" onclick="openT('${t.id}')"><div class="row"><div class="av" aria-hidden="true">${ini(t.full_name)}</div><div><h3>${esc(t.full_name)}</h3><p class="m">${LV[t.level]}, ${esc(spName(t.specialty_id))}</p></div></div><div>${(t.subjects||'').split(',').filter(x=>x.trim()).map(x=>`<span class="tag">${esc(x.trim())}</span>`).join('')}</div><p class="m" style="margin-top:8px">${esc(avSum(t))}</p></button>`).join(''):'<div class="empty"><p class="m">Aucun tuteur vérifié ne correspond pour l’instant.</p></div>'};
 const tFilter=()=>{S.tq=$('#tq').value;$('#tl').innerHTML=tList()};
-R.tutors=()=>{if(!P)return gate();
- return `<h2>Tuteurs</h2><p class="note">Section de démonstration : les tuteurs, rendez-vous et séances sont simulés dans ce navigateur.</p>
-<input id="tq" type="search" placeholder="Chercher une matière, un chapitre, un nom" value="${esc(S.tq)}" oninput="tFilter()" aria-label="Chercher un tuteur">
-<div class="chips">${['Toutes',...new Set(T.map(t=>t.f))].map(f=>`<button class="chip ${S.tf===f?'on':''}" aria-pressed="${S.tf===f}" onclick="S.tf='${f}';render()">${f}</button>`).join('')}</div><div class="grid" id="tl">${tList()}</div>`};
-function pick(el){const g=el.dataset.g;D[g]=el.dataset.v;el.parentNode.querySelectorAll('.chip').forEach(b=>{const on=b===el;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)})}
-function openT(id){const t=T.find(x=>x.id===id);
- dlg(`<div class="row"><div class="av">${esc(t.n.split(' ').map(w=>w[0]).slice(0,2).join(''))}</div><div><h2 style="font-size:1.4rem">${esc(t.n)}</h2><p class="m">${t.r}, ★ ${t.s}</p></div></div>
-<p style="margin:14px 0">${t.bio}</p><h3>Jour</h3><div class="chips">${DAYS.map(d=>`<button class="chip ${D.day===d?'on':''}" aria-pressed="${D.day===d}" data-g="day" data-v="${d}" onclick="pick(this)">${d.slice(0,3)}</button>`).join('')}</div>
-<h3>Heure (30 minutes)</h3><div class="chips">${HRS.map(h=>`<button class="chip ${D.hr===h?'on':''}" aria-pressed="${D.hr===h}" data-g="hr" data-v="${h}" onclick="pick(this)">${h}</button>`).join('')}</div>
-<label class="rd"><input type="radio" name="m" value="En ligne" checked>En ligne (visioconférence)</label><label class="rd"><input type="radio" name="m" value="Bibliothèque FSSM">En présentiel, bibliothèque FSSM</label>
-<label for="ch">Matière ou chapitre</label><input id="ch" placeholder="Analyse, séries numériques"><label for="qq">Ma question principale</label><textarea id="qq" rows="3" maxlength="300" placeholder="Explique ce que tu n’as pas compris"></textarea>
-<button class="btn w" onclick="send(${t.id})">Envoyer ma demande</button>`)}
-function send(id){const q=$('#qq').value.trim();if(q.length<10)return toast('Décris ta question en 10 caractères minimum.');
- const t=T.find(x=>x.id===id);L.reqs.unshift({id:Date.now(),tutor:t.n,stu:'moi',sub:$('#ch').value.trim()||t.f,when:D.day+' '+D.hr,mode:document.querySelector('[name=m]:checked').value,q,status:'attente'});
- saveL();S.tab='avenir';$('#dlg').close();toast('Demande envoyée à '+t.n+'.');go('sessions')}
-const sCard=(r,tu)=>`<article class="card" style="margin-top:12px"><div class="row"><div class="av" aria-hidden="true">${esc((tu?r.stu:r.tutor).split(' ').map(w=>w[0]).slice(0,2).join(''))}</div><div class="g1"><h3>${esc(tu?r.stu:r.tutor)}</h3><p class="m">${esc(r.sub)}</p><p class="m meta"><span>${r.when}</span><span>${r.mode}</span></p></div><span class="pill st-${r.status}">${STL[r.status]}</span></div>
-${r.q?`<p class="m" style="margin-top:10px">« ${esc(r.q)} »</p>`:''}<div class="row" style="margin-top:12px;flex-wrap:wrap">
-${tu&&r.status==='attente'?`<button class="btn s" onclick="setR(${r.id},'confirmee')">Confirmer</button><button class="btn s ko" onclick="setR(${r.id},'refusee')">Refuser</button>`:''}
-${r.status==='confirmee'?`${r.mode==='En ligne'?`<a class="btn s" href="https://meet.jit.si/ynj-campus-${r.id}" target="_blank" rel="noopener">Rejoindre la visio</a>`:''}<button class="btn s o" onclick="setR(${r.id},'terminee')">Marquer comme terminée</button>`:''}
-${!tu&&['attente','confirmee'].includes(r.status)?`<button class="btn s ko" onclick="setR(${r.id},'annulee')">Annuler</button>`:''}</div></article>`;
-function setR(id,st){const r=L.reqs.find(x=>x.id===id);r.status=st;if(st==='terminee'){L.st.n++;L.st.h+=.5}saveL();toast(st==='terminee'?'Séance terminée, merci !':STL[st]+'.');render()}
-R.sessions=()=>{if(!P)return gate();const tu=P.level!=='licence',up=['attente','confirmee'];
- const l=L.reqs.filter(r=>(tu?r.tutor==='moi':r.stu==='moi')&&(S.tab==='avenir')===up.includes(r.status));
- return `<h2>${tu?'Demandes et séances':'Mes séances'}</h2><div class="chips">${[['avenir','À venir'],['passees','Passées et annulées']].map(([k,v])=>`<button class="chip ${S.tab===k?'on':''}" aria-pressed="${S.tab===k}" onclick="S.tab='${k}';render()">${v}</button>`).join('')}</div>
-${l.length?l.map(r=>sCard(r,tu)).join(''):'<div class="empty"><p class="m">Aucune séance dans cette liste.</p></div>'}`};
+R.tutors=async()=>{if(!sb||!P)return gate();await loadSp();
+ const{data,error}=await sb.from('profiles').select('id,full_name,level,specialty_id,bio,subjects,availabilities(*)').eq('tutor_status','approved').in('level',['master','doctorat']).neq('id',P.id);
+ TU=data||[];
+ return `<h2>Tuteurs</h2><p class="m">Étudiants de master et de doctorat vérifiés. Les séances ont lieu en ligne, sur Google Meet.</p>${error?`<p class="note">${esc(error.message)}</p>`:''}
+<input id="tq" type="search" placeholder="Chercher une matière ou un nom" value="${esc(S.tq)}" oninput="tFilter()" aria-label="Chercher un tuteur" style="margin-top:12px">
+<div class="chips">${['Toutes','Ma filière'].map(f=>`<button class="chip ${S.tf===f?'on':''}" aria-pressed="${S.tf===f}" onclick="S.tf='${f}';render()">${f}</button>`).join('')}</div><div class="grid" id="tl">${tList()}</div>`};
+function slotMap(t){const m={},now=new Date();
+ for(let i=0;i<14;i++){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i);
+  for(const a of t.availabilities||[]){if(a.weekday!==d.getDay())continue;
+   const[h,mi]=a.start_time.split(':').map(Number),[eh,em]=a.end_time.split(':').map(Number);
+   for(let x=h*60+mi;x+30<=eh*60+em;x+=30){const s=new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,x);if(s>now){const k=d.toDateString();(m[k]=m[k]||{d,t:[]}).t.push(s)}}}}
+ Object.values(m).forEach(v=>v.t.sort((a,b)=>a-b));return m}
+function openT(id){TD=TU.find(x=>x.id===id);SLOTS=slotMap(TD);D={k:'',iso:''};const days=Object.entries(SLOTS).sort((a,b)=>a[1].d-b[1].d);
+ dlg(`<div class="row"><div class="av" aria-hidden="true">${ini(TD.full_name)}</div><div><h2 style="font-size:1.4rem">${esc(TD.full_name)}</h2><p class="m">${LV[TD.level]}, ${esc(spName(TD.specialty_id))}</p></div></div>
+${TD.bio?`<p style="margin:14px 0">${esc(TD.bio)}</p>`:''}
+${days.length?`<h3 style="margin-top:14px">Jour</h3><div class="chips">${days.map(([k,v])=>`<button class="chip" aria-pressed="false" data-k="${esc(k)}" onclick="pickDay(this)">${v.d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})}</button>`).join('')}</div>
+<h3>Heure (30 minutes, en ligne sur Google Meet)</h3><div class="chips" id="times"><span class="m">Choisis d’abord un jour.</span></div>
+<label for="ch">Matière ou chapitre</label><input id="ch" maxlength="120" placeholder="Analyse, séries numériques"><label for="qq">Ma question principale</label><textarea id="qq" rows="3" maxlength="300" placeholder="Explique ce que tu n’as pas compris"></textarea>
+<button class="btn w" onclick="send()">Envoyer ma demande</button>`:'<p class="note">Ce tuteur n’a pas encore indiqué ses disponibilités.</p>'}`)}
+function pickDay(el){sel(el);D={k:el.dataset.k,iso:''};$('#times').innerHTML=SLOTS[D.k].t.map(s=>`<button class="chip" aria-pressed="false" data-iso="${s.toISOString()}" onclick="pickTime(this)">${s.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</button>`).join('')}
+function pickTime(el){sel(el);D.iso=el.dataset.iso}
+async function send(){const sub=$('#ch').value.trim(),q=$('#qq').value.trim();
+ if(!D.iso)return toast('Choisis un jour et une heure.');
+ if(sub.length<3||q.length<10)return toast('Indique la matière (3 caractères) et ta question (10 caractères minimum).');
+ const{error}=await sb.from('appointments').insert({tutor_id:TD.id,subject:sub,question:q,scheduled_at:D.iso});
+ if(error)return toast(error.code==='23505'?'Ce créneau vient d’être pris, choisis-en un autre.':'Demande refusée : '+error.message);
+ S.tab='avenir';$('#dlg').close();toast('Demande envoyée à '+TD.full_name+'.');go('sessions')}
+const sCard=r=>{const tu=r.tutor_id===P.id,o=(tu?r.student:r.tutor)||{full_name:'Étudiant'},ok=/^https:\/\/meet\.google\.com\//.test(r.meet_url||'');
+ return `<article class="card" style="margin-top:12px"><div class="row"><div class="av" aria-hidden="true">${ini(o.full_name)}</div><div class="g1"><h3>${esc(o.full_name)}</h3><p class="m">${esc(r.subject)}</p><p class="m meta"><span>${fmt(r.scheduled_at)}</span><span>En ligne, Google Meet</span></p></div><span class="pill st-${r.status}">${STL[r.status]}</span></div>
+<p class="m" style="margin-top:10px">« ${esc(r.question)} »</p><div class="row" style="margin-top:12px;flex-wrap:wrap">
+${tu&&r.status==='pending'?`<button class="btn s" onclick="confirmR('${r.id}')">Confirmer</button><button class="btn s ko" onclick="setR('${r.id}','refused')">Refuser</button>`:''}
+${r.status==='confirmed'&&ok?`<a class="btn s" href="${esc(r.meet_url)}" target="_blank" rel="noopener">Rejoindre Google Meet</a>`:''}
+${tu&&r.status==='confirmed'?`<button class="btn s o" onclick="setR('${r.id}','done')">Marquer comme terminée</button>`:''}
+${!tu&&['pending','confirmed'].includes(r.status)?`<button class="btn s ko" onclick="setR('${r.id}','cancelled')">Annuler</button>`:''}</div></article>`};
+R.sessions=async()=>{if(!sb||!P)return gate();
+ const{data,error}=await sb.from('appointments').select('*,student:profiles!appointments_student_id_fkey(full_name),tutor:profiles!appointments_tutor_id_fkey(full_name)').order('scheduled_at',{ascending:S.tab==='avenir'});
+ const up=['pending','confirmed'],l=(data||[]).filter(r=>(S.tab==='avenir')===up.includes(r.status));
+ const g=(t,a)=>a.length?`<h3 style="margin-top:22px">${t}</h3>`+a.map(sCard).join(''):'';
+ return `<h2>Séances</h2><p class="m">Toutes les séances ont lieu en ligne, sur Google Meet. Le lien est envoyé par email aux deux participants.</p>
+<div class="chips">${[['avenir','À venir'],['passees','Passées et annulées']].map(([k,v])=>`<button class="chip ${S.tab===k?'on':''}" aria-pressed="${S.tab===k}" onclick="S.tab='${k}';render()">${v}</button>`).join('')}</div>${error?`<p class="note">${esc(error.message)}</p>`:''}
+${g('Demandes reçues',l.filter(r=>r.tutor_id===P.id))+g('Mes demandes',l.filter(r=>r.student_id===P.id))||'<div class="empty"><p class="m">Aucune séance dans cette liste.</p></div>'}`};
+async function setR(id,st){const{error}=await sb.from('appointments').update({status:st}).eq('id',id);if(error)return toast(error.message);toast(STL[st]+'.');render()}
+async function confirmR(id){toast('Création du Google Meet…');const{error}=await sb.functions.invoke('create-meet',{body:{appointment_id:id}});
+ if(error){let m=error.message;try{m=(await error.context.json()).error||m}catch(e){}return toast('Confirmation impossible : '+m)}
+ toast('Séance confirmée, invitations envoyées par email.');render()}
 
-// --- Profil et badges
-R.badges=async()=>{if(!P)return gate();const tu=P.level!=='licence',{n,h}=L.st;let rc=0;
- if(sb&&tu){const{count}=await sb.from('resources').select('id',{count:'exact',head:true}).eq('author_id',P.id);rc=count||0}
+// --- Profil, disponibilités et badges
+R.badges=async()=>{if(!P)return gate();const ok=P.tutor_status==='approved',tu=P.level!=='licence';let rc=0,n=0,av=[];
+ if(sb){const[a,b,c]=await Promise.all([ok?sb.from('resources').select('id',{count:'exact',head:true}).eq('author_id',P.id):null,sb.from('appointments').select('id',{count:'exact',head:true}).eq('status','done'),ok?sb.from('availabilities').select('*').eq('tutor_id',P.id):null]);rc=(a&&a.count)||0;n=b.count||0;av=(c&&c.data)||[]}
+ const h=n/2,hs=Number.isInteger(h)?h:h.toFixed(1);
  const B=[['Première séance','1 séance',n>=1],['Régulier','5 séances',n>=5],['Assidu','10 séances',n>=10],['Solidaire','20 heures',h>=20],['Inspirant','50 heures',h>=50],['Ambassadeur','100 heures',h>=100]];
  if(tu)B.push(['Premier dépôt','1 ressource publiée',rc>=1],['Bibliothécaire','10 ressources publiées',rc>=10]);
- return `<div class="row" style="margin-bottom:6px"><div class="av" aria-hidden="true">${esc(P.full_name.split(' ').map(w=>w[0]).slice(0,2).join(''))}</div><div class="g1"><h2>${esc(P.full_name)}</h2><p class="m">${LV[P.level]}${P.tutor_status==='pending'?', statut tuteur en cours de vérification':''}${P.tutor_status==='approved'?', tuteur vérifié':''}</p></div><button class="btn s o" onclick="logout()">Se déconnecter</button></div>
-<div class="stats"><div><b>${n}</b>séances</div><div><b>${h}</b>heures</div>${tu?`<div><b>${rc}</b>ressources publiées</div>`:`<div><b>${Math.max(1,Math.floor(n/4))}</b>niveau</div>`}</div>
-<h3 style="margin-top:22px">Badges</h3><div class="bdgs">${B.map(b=>`<div class="bd ${b[2]?'':'lock'}"><div class="a2">${ic('star')}</div><b>${b[0]}</b><p class="m">${b[1]}</p></div>`).join('')}</div>`};
+ return `<div class="row" style="margin-bottom:6px"><div class="av" aria-hidden="true">${ini(P.full_name)}</div><div class="g1"><h2>${esc(P.full_name)}</h2><p class="m">${LV[P.level]}${P.tutor_status==='pending'?', statut tuteur en cours de vérification':''}${ok?', tuteur vérifié':''}${P.tutor_status==='rejected'?', vérification non accordée':''}</p></div><button class="btn s o" onclick="logout()">Se déconnecter</button></div>
+<div class="stats"><div><b>${n}</b>séances</div><div><b>${hs}</b>heures</div>${tu?`<div><b>${rc}</b>ressources publiées</div>`:`<div><b>${Math.max(1,Math.floor(n/4))}</b>niveau</div>`}</div>
+${ok?`<h3 style="margin-top:22px">Mon profil de tuteur</h3><label for="pb">Présentation</label><textarea id="pb" rows="3" maxlength="500" placeholder="Qui es-tu, comment peux-tu aider ?">${esc(P.bio||'')}</textarea>
+<label for="ps">Matières (séparées par des virgules)</label><input id="ps" maxlength="200" value="${esc(P.subjects||'')}" placeholder="Analyse, Algèbre, Probabilités"><button class="btn s" style="margin-top:12px" onclick="saveProf()">Enregistrer</button>
+<h3 style="margin-top:26px">Mes disponibilités, chaque semaine</h3><p class="m">Les étudiants réservent des séances de 30 minutes dans ces plages horaires.</p>
+${sortAv(av).map(a=>`<div class="card row" style="margin-top:10px"><span class="g1">${DAYS[a.weekday]}, de ${hm(a.start_time)} à ${hm(a.end_time)}</span><button class="btn s ko" onclick="delAv('${a.id}')">Retirer</button></div>`).join('')}
+<div class="avf"><div><label for="aw">Jour</label><select id="aw">${WD.map(d=>`<option value="${d}">${DAYS[d]}</option>`).join('')}</select></div><div><label for="as">De</label><input id="as" type="time" step="1800" value="10:00"></div><div><label for="ae">À</label><input id="ae" type="time" step="1800" value="12:00"></div><button class="btn s" onclick="addAv()">Ajouter</button></div>`
+ :tu?`<p class="note">Ton statut de tuteur est en cours de vérification. Une fois validé, tu pourras ajouter des ressources et indiquer tes disponibilités.</p>`:''}
+<h3 style="margin-top:26px">Badges</h3><div class="bdgs">${B.map(b=>`<div class="bd ${b[2]?'':'lock'}"><div class="a2">${ic('star')}</div><b>${b[0]}</b><p class="m">${b[1]}</p></div>`).join('')}</div>`};
+async function saveProf(){const bio=$('#pb').value.trim()||null,subjects=$('#ps').value.trim()||null;
+ const{error}=await sb.from('profiles').update({bio,subjects}).eq('id',P.id);if(error)return toast(error.message);P.bio=bio;P.subjects=subjects;toast('Profil enregistré.')}
+async function addAv(){const s=$('#as').value,e=$('#ae').value;if(!s||!e||e<=s)return toast('L’heure de fin doit être après l’heure de début.');
+ const{error}=await sb.from('availabilities').insert({weekday:+$('#aw').value,start_time:s,end_time:e});if(error)return toast(error.message);toast('Disponibilité ajoutée.');render()}
+async function delAv(id){const{error}=await sb.from('availabilities').delete().eq('id',id);if(error)return toast(error.message);render()}
 
 // --- Affichage
 async function render(){const id=++rid,h=(location.hash||'#home').slice(1),f=R[h]?h:'home';
