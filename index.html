@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>YNJ Campus – Yallah Na9raw Jmi3</title>
+<meta name="description" content="Tutorat entre pairs à l’Université Cadi Ayyad : licence, master et doctorat s’entraident.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+<style>
+:root{--p:#1d4ed8;--on:#fff;--pl:#e8efff;--bg:#f4f7ff;--c:#fff;--t:#0f172a;--m:#5b6b86;--b:#d5dff3;--ok:#15803d;--wa:#b45309;--ko:#b91c1c;--gd:#d97706}
+@media(prefers-color-scheme:dark){:root{--p:#7aa5ff;--on:#0b1220;--pl:#1b2a4d;--bg:#0b1220;--c:#131c30;--t:#e8eefc;--m:#9fb0cf;--b:#27344f;--ok:#4ade80;--wa:#fbbf24;--ko:#f87171;--gd:#fbbf24}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--t);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:440px;min-height:100vh;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 96px;background:var(--bg)}
+h1,h2,h3,p{margin:0}h2{font-size:1.25rem}h3{font-size:1rem}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--p);outline-offset:2px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.top .bk{border:0;background:var(--pl);color:var(--p);width:38px;height:38px;border-radius:50%;font-size:1.2rem}
+.card{background:var(--c);border:1px solid var(--b);border-radius:16px;padding:14px;margin-bottom:12px}
+.btn{display:block;width:100%;padding:13px;border-radius:12px;border:2px solid var(--p);background:var(--p);color:var(--on);font-weight:700;text-align:center;margin-top:10px}
+.btn.o{background:transparent;color:var(--p)}.btn.ko{background:transparent;color:var(--ko);border-color:var(--ko)}
+.btn.s{display:inline-block;width:auto;padding:8px 14px;margin:0;font-size:.9rem}
+.row{display:flex;gap:10px;align-items:center}.sp{justify-content:space-between}.g1{flex:1}
+.m{color:var(--m);font-size:.88rem}
+.av{width:48px;height:48px;border-radius:50%;background:var(--p);color:var(--on);display:grid;place-items:center;font-weight:800;flex:none}
+.av.l{width:92px;height:92px;font-size:1.8rem;margin:0 auto 8px}
+.tag{display:inline-block;background:var(--pl);color:var(--p);border-radius:8px;padding:3px 9px;font-size:.8rem;margin:6px 6px 0 0}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px}
+.chip{border:1px solid var(--b);background:var(--c);border-radius:20px;padding:7px 14px;white-space:nowrap}
+.chip.on{background:var(--p);color:var(--on);border-color:var(--p)}
+.st{color:var(--gd)}
+label{display:block;font-weight:600;font-size:.9rem;margin:12px 0 4px}
+input[type=text],input[type=email],input[type=password],select,textarea{width:100%;padding:11px;border:1px solid var(--b);border-radius:10px;background:var(--c)}
+.hero{text-align:center;padding-top:6vh}
+.logo{font-size:3.6rem;font-weight:900;letter-spacing:-2px;color:var(--p);line-height:1}
+.logo small{display:block;font-size:1.05rem;letter-spacing:.5em;margin-top:6px}
+.ar{font-size:1.1rem;margin:6px 0 18px}
+.feat{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0}
+.feat div{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:10px;font-size:.85rem}
+.role{display:block;width:100%;text-align:left;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sl{padding:11px 0;border:1px solid var(--b);border-radius:10px;background:var(--c);text-align:center}
+.sl.on{background:var(--p);color:var(--on);border-color:var(--p);font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.stats div{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:10px 4px;text-align:center;font-size:.72rem;color:var(--m)}
+.stats b{display:block;font-size:1.3rem;color:var(--p)}
+.pill{font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--pl)}
+.s0{color:var(--wa)}.s1{color:var(--ok)}.s2{color:var(--ko)}
+.nav{position:fixed;left:0;right:0;bottom:0;max-width:440px;margin:0 auto;display:flex;background:var(--c);border-top:1px solid var(--b);padding:6px 0 calc(env(safe-area-inset-bottom,0px) + 6px)}
+.nav a{flex:1;text-align:center;text-decoration:none;color:var(--m);font-size:.75rem;padding:4px}
+.nav a b{display:block;font-size:1.25rem;font-weight:400}.nav a.on{color:var(--p);font-weight:700}
+.vid{height:300px;border-radius:16px;background:linear-gradient(160deg,#1e3a8a,#0f172a);position:relative;display:grid;place-items:center;color:#fff}
+.vid .me{position:absolute;right:12px;bottom:12px;width:84px;height:110px;border-radius:12px;background:#334155;display:grid;place-items:center}
+.ctl{display:flex;justify-content:center;gap:14px;margin:16px 0}
+.ctl button{width:54px;height:54px;border-radius:50%;border:0;background:var(--pl);font-size:1.3rem}
+.ctl .end{background:var(--ko)}
+.bdg{text-align:center}.bdg.lock{opacity:.45}.bdg i{font-size:2rem;font-style:normal;display:block}
+.sw{position:relative;width:46px;height:26px;flex:none}.sw input{opacity:0;position:absolute;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.sw span{position:absolute;inset:0;border-radius:20px;background:var(--b);transition:.2s;pointer-events:none}
+.sw span:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+span{background:var(--p)}.sw input:checked+span:after{transform:translateX(20px)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const $=s=>document.querySelector(s),A=$('#app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DAY={Lun:'Lundi',Mar:'Mardi',Mer:'Mercredi',Jeu:'Jeudi',Ven:'Vendredi',Sam:'Samedi'};
+const HRS=['09:00','10:00','11:00','14:00','15:00','16:00'];
+const ME='Youssef El Amrani';
+const T=[
+{id:1,n:ME,r:'Doctorant – Mathématiques',s:4.9,c:32,f:'Mathématiques',tags:['Analyse','Algèbre','Statistiques','Probabilités'],on:1,bio:"Doctorant en mathématiques, passionné par la transmission du savoir. Je peux t’aider à comprendre les concepts difficiles et à préparer tes examens."},
+{id:2,n:'Sara Ouhmadi',r:'Master – Intelligence Artificielle',s:4.8,c:18,f:'Informatique',tags:['Python','Machine Learning','IA'],on:1,bio:"Étudiante en master IA. J’explique la programmation Python et les bases du machine learning avec des exemples concrets."},
+{id:3,n:'Omar Rachidi',r:'Doctorant – Physique',s:4.7,c:25,f:'Physique',tags:['Mécanique','Thermodynamique'],on:0,bio:"Doctorant en physique, je t’aide à relier la théorie aux exercices de mécanique et de thermodynamique."}];
+let S={role:'student',name:'Amina Benali',tab:'À venir',f:'Toutes',q:'',tid:1,day:'Mar',hr:'10:00',st:{n:12,h:9},
+slots:[['Lundi · 10:00–11:00 · En ligne',1],['Mardi · 14:00–15:00 · Bibliothèque',1],['Jeudi · 10:00–11:00 · En ligne',1],['Vendredi · 14:00–16:00 · Bibliothèque',1]],
+reqs:[{id:1,tutor:ME,stu:'Amina Benali',sub:'Analyse – Séries numériques',when:'Mardi · 10:00',mode:'En ligne',q:"Je n’arrive pas à déterminer la convergence d’une série numérique.",status:'En attente'},
+{id:2,tutor:'Sara Ouhmadi',stu:'Amina Benali',sub:'Python – Boucles et fonctions',when:'Vendredi · 14:00',mode:'En ligne',q:'',status:'Confirmée'},
+{id:3,tutor:'Omar Rachidi',stu:'Amina Benali',sub:'Mécanique – Cinématique',when:'Lundi · 09:00',mode:'Bibliothèque FSSM',q:'',status:'Terminée'}]};
+try{const x=JSON.parse(localStorage.getItem('ynj'));if(x)S=Object.assign(S,x)}catch(e){}
+const save=()=>{try{localStorage.setItem('ynj',JSON.stringify(S))}catch(e){}};
+const go=h=>{location.hash=h};
+const ini=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
+const av=(n,c='')=>`<div class="av ${c}" aria-hidden="true">${esc(ini(n))}</div>`;
+const hd=(t,b)=>`<div class="top">${b?`<button class="bk" onclick="go('${b}')" aria-label="Retour">‹</button>`:''}<h2>${t}</h2></div>`;
+const stars=n=>`<span class="st" aria-label="${n} sur 5">★</span> ${n}`;
+const lvl=()=>Math.max(1,Math.floor(S.st.n/4));
+let tm;
+
+const R={
+home:()=>`<div class="hero"><div class="logo">YNJ<small>CAMPUS</small></div>
+<p><b>Yallah Na9raw Jmi3</b></p><p class="ar" lang="ar" dir="rtl">يلا نقراو جميع</p>
+<h1 style="font-size:1.3rem">Une communauté d’entraide pour la réussite universitaire.</h1>
+<div class="feat"><div><b>Tutorat entre pairs</b><br>Licence, master et doctorat</div><div><b>Gratuit et solidaire</b><br>Pour toute l’UCA</div><div><b>En ligne ou en bibliothèque</b><br>Tu choisis</div><div><b>Engagement reconnu</b><br>Badges pour les tuteurs</div></div>
+<button class="btn" onclick="go('role')">Commencer</button><a class="btn o" style="text-decoration:none" href="#login">Se connecter</a>
+<details class="card" style="margin-top:12px;text-align:left"><summary style="cursor:pointer;font-weight:700;color:var(--p)">En savoir plus</summary>
+<p class="m" style="margin-top:8px">YNJ Campus relie les étudiants en licence qui n’ont pas compris un point de cours aux étudiants en master ou en doctorat de la même filière, prêts à les aider.</p></details>
+<p class="m" style="margin-top:14px">« Parce que chaque étudiant peut faire la différence. »</p></div>`,
+
+role:()=>`${hd('Rejoindre YNJ Campus','home')}
+<button class="card role" onclick="S.role='student';save();go('signup')"><h3>Je suis étudiant</h3><p class="m">Je cherche de l’aide pour progresser dans mes études.</p></button>
+<button class="card role" onclick="S.role='tutor';save();go('signup')"><h3>Je suis tuteur</h3><p class="m">Je partage mes connaissances et j’accompagne d’autres étudiants.</p></button>`,
+
+signup:()=>`${hd('Créer mon compte étudiant','role')}
+<label for="em">Email universitaire</label><input id="em" type="email" placeholder="prenom.nom@uca.ma" autocomplete="email">
+<label for="nm">Nom complet</label><input id="nm" type="text" placeholder="Amina Benali" autocomplete="name">
+<label for="et">Établissement</label><select id="et"><option>Université Cadi Ayyad</option><option>FSSM</option><option>FSJES</option><option>ENSA</option><option>FST</option></select>
+<label for="nv">Niveau d’études</label><select id="nv"><option>Licence</option></select>
+<label for="fi">Filière</label><select id="fi"><option>Mathématiques</option><option>Informatique</option><option>Physique</option><option>Chimie</option><option>Biologie</option></select>
+<label for="pw">Mot de passe</label><input id="pw" type="password" minlength="8" autocomplete="new-password">
+<button class="btn" onclick="signup()">Créer mon compte</button>
+<p class="m" style="text-align:center;margin-top:12px">Un email universitaire (@uca.ma) est requis pour rejoindre la plateforme.</p>`,
+
+search:()=>{const fl=['Toutes','Mathématiques','Informatique','Physique'];
+const q=S.q.toLowerCase(),l=T.filter(t=>(S.f==='Toutes'||t.f===S.f)&&(t.n+t.f+t.tags.join()).toLowerCase().includes(q));
+return `${hd('Trouver un tuteur')}
+<input id="sq" type="text" placeholder="Rechercher une matière, un chapitre…" value="${esc(S.q)}" oninput="S.q=this.value;list()" aria-label="Recherche">
+<div class="chips" style="margin-top:10px">${fl.map(f=>`<button class="chip ${S.f===f?'on':''}" onclick="S.f='${f}';render()">${f}</button>`).join('')}</div><div id="ls">${cards(l)}</div>`},
+
+profile:()=>{const t=T.find(x=>x.id==S.tid);return `${hd('Profil du tuteur','search')}
+<div style="text-align:center">${av(t.n,'l')}<h2>${esc(t.n)} ✔</h2><p class="m">${t.r}<br>Université Cadi Ayyad</p><p>${stars(t.s)} <span class="m">(${t.c} avis)</span></p></div>
+<div style="text-align:center">${t.tags.map(x=>`<span class="tag">${x}</span>`).join('')}</div>
+<p class="m" style="margin:10px 0">${t.on?'🟢 En ligne':'⚪ Hors ligne'} · Bibliothèque FSSM</p>
+<h3>À propos de moi</h3><p class="m" style="margin:6px 0 14px">${t.bio}</p>
+<h3>Disponibilités</h3><div class="chips" style="margin-top:8px">${Object.keys(DAY).map(d=>`<button class="chip ${S.day===d?'on':''}" onclick="S.day='${d}';render()">${d}</button>`).join('')}</div>
+<div class="grid">${HRS.map(h=>`<button class="sl ${S.hr===h?'on':''}" onclick="S.hr='${h}';render()">${h}</button>`).join('')}</div>
+<button class="btn" onclick="go('request')">Demander un rendez-vous</button>`},
+
+request:()=>{const t=T.find(x=>x.id==S.tid);return `${hd('Demander un rendez-vous','profile')}
+<div class="card row">${av(t.n)}<div><b>${esc(t.n)}</b><div class="m">${t.r}</div></div></div>
+<div class="card"><b>Date et heure</b><p class="m">${DAY[S.day]} · ${S.hr} – 30 minutes</p></div>
+<h3>Modalité de la séance</h3>
+<label class="row" style="font-weight:400"><input type="radio" name="m" value="En ligne" checked> En ligne (visioconférence)</label>
+<label class="row" style="font-weight:400"><input type="radio" name="m" value="Bibliothèque FSSM"> En présentiel (bibliothèque FSSM)</label>
+<label for="ch">Matière ou chapitre</label><input id="ch" type="text" placeholder="Analyse – Séries numériques">
+<label for="qq">Ma question principale *</label><textarea id="qq" rows="4" maxlength="300" oninput="$('#cn').textContent=this.value.length+'/300'" placeholder="Explique ce que tu n’as pas compris…"></textarea>
+<p class="m" style="text-align:right" id="cn">0/300</p>
+<button class="btn" onclick="send()">Envoyer ma demande</button>`},
+
+mine:()=>{const g={'À venir':['En attente','Confirmée'],'Passés':['Terminée'],'Annulés':['Refusée','Annulée']};
+const l=S.reqs.filter(r=>r.stu===S.name&&g[S.tab].includes(r.status));
+return `${hd('Mes rendez-vous')}<div class="chips">${Object.keys(g).map(k=>`<button class="chip ${S.tab===k?'on':''}" onclick="S.tab='${k}';render()">${k}</button>`).join('')}</div>
+${l.length?l.map(r=>`<div class="card"><div class="row">${av(r.tutor)}<div class="g1"><b>${esc(r.tutor)}</b><div class="m">${esc(r.sub)}<br>${r.when} · ${r.mode}</div></div><span class="pill ${r.status==='Confirmée'?'s1':r.status==='En attente'?'s0':'s2'}">${r.status}</span></div>
+<div class="row" style="margin-top:10px">${r.status==='Confirmée'?`<button class="btn s g1" onclick="go('session')">Rejoindre la séance</button>`:''}${['En attente','Confirmée'].includes(r.status)?`<button class="btn s ko g1" onclick="setS(${r.id},'Annulée')">Annuler</button>`:''}</div></div>`).join(''):'<p class="m card">Aucun rendez-vous ici. Cherche un tuteur pour en demander un.</p>'}`},
+
+session:()=>{setTimeout(()=>{let s=0;tm=setInterval(()=>{s++;const e=$('#tm');if(e)e.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},1000)});
+return `${hd('Séance avec Youssef','mine')}<p class="m" id="tm" style="text-align:center;margin-bottom:10px">00:00</p>
+<div class="vid"><div class="av l">YE</div><div class="me">Moi</div></div>
+<div class="ctl"><button aria-label="Micro" onclick="this.style.opacity=this.style.opacity==.4?1:.4">🎤</button><button aria-label="Caméra" onclick="this.style.opacity=this.style.opacity==.4?1:.4">📷</button><button class="end" aria-label="Terminer" onclick="go('feedback')">📞</button></div>
+<a class="btn o" style="text-decoration:none" href="https://meet.jit.si/ynj-campus-${S.name.replace(/\W/g,'')}" target="_blank" rel="noopener">Ouvrir la visio réelle (Jitsi)</a>`},
+
+dash:()=>{const p=S.reqs.filter(r=>r.tutor===ME&&r.status==='En attente');
+return `${hd('Bonjour Youssef !')}<p class="m" style="margin:-10px 0 12px">Merci pour votre engagement.</p>
+<div class="stats"><div><b>${p.length}</b>Demandes</div><div><b>${S.st.n}</b>Séances</div><div><b>${S.st.h}h</b>Bénévoles</div><div><b>4.9</b>Note</div></div>
+<h3 style="margin-bottom:8px">Demandes récentes</h3>
+${p.length?p.map(r=>`<div class="card"><div class="row">${av(r.stu)}<div><b>${esc(r.stu)}</b><div class="m">${esc(r.sub)}<br>${r.when} · ${r.mode}</div></div></div>${r.q?`<p class="m" style="margin-top:8px">« ${esc(r.q)} »</p>`:''}
+<div class="row"><button class="btn s ko g1" onclick="setS(${r.id},'Refusée')">Refuser</button><button class="btn s g1" onclick="setS(${r.id},'Confirmée')">Confirmer</button></div></div>`).join(''):'<p class="m card">Aucune demande en attente.</p>'}`},
+
+agenda:()=>`${hd('Mes disponibilités')}${S.slots.map((s,i)=>`<div class="card row sp"><span>${esc(s[0])}</span><label class="sw"><input type="checkbox" ${s[1]?'checked':''} onchange="S.slots[${i}][1]=this.checked?1:0;save()" aria-label="Activer ${esc(s[0])}"><span></span></label></div>`).join('')}
+<button class="btn o" onclick="addSlot()">Ajouter un créneau</button>`,
+
+feedback:()=>{clearInterval(tm);return `<div style="text-align:center;margin-top:20px"><div style="font-size:3rem">✅</div><h2>Séance terminée</h2><p class="m">Merci pour cet échange !</p></div>
+<div class="card" style="margin-top:16px"><b>Retour de l’étudiant</b><p class="m">Amina Benali <span class="st">★★★★★</span><br>Très bonne explication ! J’ai enfin compris la convergence des séries.</p></div>
+<h3 style="margin-top:14px">Votre retour</h3><p class="m">La difficulté principale a-t-elle été résolue ?</p>
+<label class="row" style="font-weight:400"><input type="radio" name="r" checked> Oui, complètement</label><label class="row" style="font-weight:400"><input type="radio" name="r"> Partiellement</label><label class="row" style="font-weight:400"><input type="radio" name="r"> Non</label>
+<label for="nt">Notes (optionnel)</label><input id="nt" type="text" placeholder="Étudiant motivé, bonne participation.">
+<button class="btn" onclick="S.st.n++;S.st.h++;save();go('badges')">Valider et clôturer</button>`},
+
+badges:()=>{const B=[['⭐','Premier tutorat','1 séance',S.st.n>=1],['🎯','Tuteur actif','5 séances',S.st.n>=5],['🏆','Expert','10 séances',S.st.n>=10],['🤝','Solidaire','20 heures',S.st.h>=20],['💡','Inspirant','50 heures',S.st.h>=50],['🌟','Ambassadeur','100 heures',S.st.h>=100]];
+return `${hd('Mes badges')}<div class="card row">${av(ME)}<div><b>${ME}</b><div class="m">Tuteur bénévole · ${S.st.n} séances · ${S.st.h} heures<br>Niveau ${lvl()}</div></div></div>
+<div class="grid" style="grid-template-columns:1fr 1fr">${B.map(b=>`<div class="card bdg ${b[3]?'':'lock'}"><i>${b[3]?b[0]:'🔒'}</i><b>${b[1]}</b><div class="m">${b[2]}</div></div>`).join('')}</div>`}
+};
+const NAV={student:[['search','🔍','Recherche'],['mine','📅','Mes RDV'],['badges','🏅','Badges']],tutor:[['dash','🏠','Demandes'],['agenda','🗓️','Agenda'],['badges','🏅','Badges']]};
+const NONAV=['home','role','signup','session','feedback'];
+const nav=h=>NONAV.includes(h)?'':`<nav class="nav" aria-label="Navigation">${NAV[S.role].map(n=>`<a href="#${n[0]}" class="${n[0]===h||(h==='profile'||h==='request')&&n[0]==='search'?'on':''}"><b>${n[1]}</b>${n[2]}</a>`).join('')}</nav>`;
+const cards=l=>l.length?l.map(t=>`<div class="card" style="cursor:pointer" onclick="S.tid=${t.id};go('profile')"><div class="row">${av(t.n)}<div class="g1"><b>${esc(t.n)}</b><div class="m">${t.r}</div><div>${stars(t.s)} <span class="m">(${t.c} avis)</span></div></div></div><div>${t.tags.map(x=>`<span class="tag">${x}</span>`).join('')}</div><p class="m" style="margin-top:6px">${t.on?'🟢 En ligne':''} Bibliothèque FSSM</p></div>`).join(''):'<p class="m card">Aucun tuteur trouvé. Essaie une autre matière.</p>';
+function list(){$('#ls').innerHTML=cards(T.filter(t=>(S.f==='Toutes'||t.f===S.f)&&(t.n+t.f+t.tags.join()).toLowerCase().includes(S.q.toLowerCase())))}
+function signup(){const e=$('#em').value.trim(),n=$('#nm').value.trim();
+if(!/^[^@\s]+@([a-z0-9-]+\.)*uca\.ma$/i.test(e)){alert('Utilise ton email universitaire (@uca.ma).');return}
+if(!n||$('#pw').value.length<8){alert('Renseigne ton nom et un mot de passe de 8 caractères minimum.');return}
+S.name=n;S.role='student';save();go('search')}
+function send(){const q=$('#qq').value.trim();if(q.length<10){alert('Décris ta question en 10 caractères minimum.');return}
+const t=T.find(x=>x.id==S.tid);S.reqs.unshift({id:Date.now(),tutor:t.n,stu:S.name,sub:$('#ch').value.trim()||t.f,when:DAY[S.day]+' · '+S.hr,mode:document.querySelector('[name=m]:checked').value,q,status:'En attente'});S.tab='À venir';save();go('mine')}
+function setS(id,s){S.reqs.find(r=>r.id===id).status=s;save();render()}
+function addSlot(){const v=prompt('Nouveau créneau (ex. Samedi · 10:00–11:00 · En ligne)');if(v&&v.trim()){S.slots.push([v.trim().slice(0,60),1]);save();render()}}
+</script>
+<script src="db.js"></script>
+</body>
+</html>
