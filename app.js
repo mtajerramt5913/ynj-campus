@@ -22,7 +22,7 @@ const need=()=>sb?'':'<p class="note">Base de données non configurée : renseig
 const pubTop=()=>`<header class="top"><a class="logo" href="#home">${LOGO}YNJ Campus</a><nav><a href="#login">Se connecter</a><a class="btn s" href="#signup">Créer un compte</a></nav></header>`;
 const gate=()=>`${pubTop()}<div class="empty"><div class="arch">${STAR}</div><h2>Connecte-toi pour continuer</h2>${need()}<p class="m" style="margin:8px 0 18px">Un email universitaire @uca.ma est nécessaire.</p><a class="btn" href="#login">Se connecter</a></div>`;
 const authPage=(h,b)=>`${pubTop()}<div class="ap"><div class="apl" aria-hidden="true">${STAR}<p>Yallah Na9raw Jmi3</p></div><div class="apf"><h2>${h}</h2>${need()}${b}</div></div>`;
-const rail=f=>`<a class="logo" href="#resources">${LOGO}YNJ Campus</a><div style="height:18px"></div>${NAVS.map(n=>`<a href="#${n[0]}" class="${f===n[0]?'on':''}" ${f===n[0]?'aria-current="page"':''}>${ic(n[1])}${n[2]}</a>`).join('')}<div class="who"><b>${esc(P.full_name)}</b><br>${LV[P.level]}${P.tutor_status==='pending'?', statut tuteur en cours de vérification':''}</div><button class="lo" onclick="logout()">Se déconnecter</button>`;
+const rail=f=>`<a class="logo" href="#resources">${LOGO}YNJ Campus</a><div style="height:18px"></div>${NAVS.map(n=>`<a href="#${n[0]}" class="${f===n[0]?'on':''}" ${f===n[0]?'aria-current="page"':''}>${ic(n[1])}${n[2]}</a>`).join('')}<div class="who"><b>${esc(P.full_name)}</b><br>${LV[P.level]}${P.tutor_status==='pending'?'':''}</div><button class="lo" onclick="logout()">Se déconnecter</button>`;
 const tabs=f=>NAVS.map(n=>`<a href="#${n[0]}" class="${f===n[0]?'on':''}" ${f===n[0]?'aria-current="page"':''}>${ic(n[1])}${n[2]}</a>`).join('');
 
 async function loadSp(){if(sb&&!SP.length){const{data}=await sb.from('specialties').select('*').order('establishment').order('name');SP=data||[]}}
@@ -47,7 +47,7 @@ R.signup=async()=>{await loadSp();const o=SP.map(s=>`<option value="${s.id}">${e
  return authPage('Créer mon compte',`<label for="em">Email universitaire</label><input id="em" type="email" placeholder="prenom.nom@uca.ma" autocomplete="email">
 <label for="nm">Nom complet</label><input id="nm" autocomplete="name"><label for="nv">Niveau d’études</label><select id="nv"><option value="licence">Licence</option><option value="master">Master</option><option value="doctorat">Doctorat</option></select>
 <label for="fi">Filière</label><select id="fi">${o}</select><label for="pw">Mot de passe (8 caractères minimum)</label><input id="pw" type="password" autocomplete="new-password">
-<button class="btn w" onclick="signup()">Créer mon compte</button><p class="note">Un email @uca.ma est requis. En master ou doctorat, ton statut de tuteur est vérifié avant que tu puisses ajouter des ressources.</p><p><a href="#login">J’ai déjà un compte</a></p>`)};
+<button class="btn w" onclick="signup()">Créer mon compte</button><p class="note">Un email @uca.ma est requis. En master ou doctorat, tu deviens tuteur dès l’inscription : tu peux publier des ressources et indiquer tes disponibilités.</p><p><a href="#login">J’ai déjà un compte</a></p>`)};
 async function signup(){const e=$('#em').value.trim(),n=$('#nm').value.trim(),pw=$('#pw').value;
  if(!sb)return toast('Base de données non configurée (voir README).');
  if(!/^[^@\s]+@([a-z0-9-]+\.)*uca\.(ac\.)?ma$/i.test(e))return toast('Utilise ton email universitaire (@uca.ma).');
@@ -85,7 +85,7 @@ async function detail(){const s=SP.find(x=>x.id===S.sp);
 <h2 style="margin-top:10px">${esc(s.name)}</h2><p class="m">${esc(s.establishment)}, ${s.cursus==='education'?'licence en éducation':'licence fondamentale'}</p>
 <div class="chips" role="group" aria-label="Type">${Object.entries(KIND).map(([k,v])=>`<button class="chip ${S.kind===k?'on':''}" aria-pressed="${S.kind===k}" onclick="S.kind='${k}';render()">${v}</button>`).join('')}</div>
 <div class="chips" role="group" aria-label="Semestre">${['','1','2','3','4','5','6'].map(x=>`<button class="chip ${S.sem===x?'on':''}" aria-pressed="${S.sem===x}" onclick="S.sem='${x}';render()">${x?'S'+x:'Tous'}</button>`).join('')}</div>${list}
-${can?`<button class="btn y" onclick="openAdd()">Ajouter une ressource</button>`:'<p class="note">Seuls les étudiants en master ou doctorat vérifiés peuvent ajouter des ressources.</p>'}`}
+${can?`<button class="btn y" onclick="openAdd()">Ajouter une ressource</button>`:'<p class="note">Seuls les étudiants en master ou doctorat peuvent ajouter des ressources.</p>'}`}
 function dlg(h){const d=$('#dlg');d.innerHTML=`<div class="dh"><button class="x" onclick="$('#dlg').close()" aria-label="Fermer">×</button></div>${h}`;d.showModal()}
 $('#dlg').addEventListener('click',e=>{if(e.target.id==='dlg')e.target.close()});
 const openAdd=()=>dlg(`<h2>Ajouter une ressource</h2>
@@ -123,12 +123,12 @@ const avSum=t=>(t.availabilities||[]).length?sortAv(t.availabilities).map(a=>`${
 let TU=[],TD=null,SLOTS={};
 function sel(el){el.parentNode.querySelectorAll('.chip').forEach(b=>{const on=b===el;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)})}
 const tList=()=>{const q=S.tq.toLowerCase(),l=TU.filter(t=>(S.tf==='Toutes'||t.specialty_id===P.specialty_id)&&(t.full_name+' '+(t.subjects||'')+' '+spName(t.specialty_id)).toLowerCase().includes(q));
- return l.length?l.map(t=>`<button class="card tc" onclick="openT('${t.id}')"><div class="row"><div class="av" aria-hidden="true">${ini(t.full_name)}</div><div><h3>${esc(t.full_name)}</h3><p class="m">${LV[t.level]}, ${esc(spName(t.specialty_id))}</p></div></div><div>${(t.subjects||'').split(',').filter(x=>x.trim()).map(x=>`<span class="tag">${esc(x.trim())}</span>`).join('')}</div><p class="m" style="margin-top:8px">${esc(avSum(t))}</p></button>`).join(''):'<div class="empty"><p class="m">Aucun tuteur vérifié ne correspond pour l’instant.</p></div>'};
+ return l.length?l.map(t=>`<button class="card tc" onclick="openT('${t.id}')"><div class="row"><div class="av" aria-hidden="true">${ini(t.full_name)}</div><div><h3>${esc(t.full_name)}</h3><p class="m">${LV[t.level]}, ${esc(spName(t.specialty_id))}</p></div></div><div>${(t.subjects||'').split(',').filter(x=>x.trim()).map(x=>`<span class="tag">${esc(x.trim())}</span>`).join('')}</div><p class="m" style="margin-top:8px">${esc(avSum(t))}</p></button>`).join(''):'<div class="empty"><p class="m">Aucun tuteur ne correspond pour l’instant.</p></div>'};
 const tFilter=()=>{S.tq=$('#tq').value;$('#tl').innerHTML=tList()};
 R.tutors=async()=>{if(!sb||!P)return gate();await loadSp();
  const{data,error}=await sb.from('profiles').select('id,full_name,level,specialty_id,bio,subjects,availabilities(*)').eq('tutor_status','approved').in('level',['master','doctorat']).neq('id',P.id);
  TU=data||[];
- return `<h2>Tuteurs</h2><p class="m">Étudiants de master et de doctorat vérifiés. Les séances ont lieu en ligne, sur Google Meet.</p>${error?`<p class="note">${esc(error.message)}</p>`:''}
+ return `<h2>Tuteurs</h2><p class="m">Étudiants de master et de doctorat. Les séances ont lieu en ligne, sur Google Meet.</p>${error?`<p class="note">${esc(error.message)}</p>`:''}
 <input id="tq" type="search" placeholder="Chercher une matière ou un nom" value="${esc(S.tq)}" oninput="tFilter()" aria-label="Chercher un tuteur" style="margin-top:12px">
 <div class="chips">${['Toutes','Ma filière'].map(f=>`<button class="chip ${S.tf===f?'on':''}" aria-pressed="${S.tf===f}" onclick="S.tf='${f}';render()">${f}</button>`).join('')}</div><div class="grid" id="tl">${tList()}</div>`};
 function slotMap(t){const m={},now=new Date();
@@ -177,14 +177,14 @@ R.badges=async()=>{if(!P)return gate();const ok=P.tutor_status==='approved',tu=P
  const h=n/2,hs=Number.isInteger(h)?h:h.toFixed(1);
  const B=[['Première séance','1 séance',n>=1],['Régulier','5 séances',n>=5],['Assidu','10 séances',n>=10],['Solidaire','20 heures',h>=20],['Inspirant','50 heures',h>=50],['Ambassadeur','100 heures',h>=100]];
  if(tu)B.push(['Premier dépôt','1 ressource publiée',rc>=1],['Bibliothécaire','10 ressources publiées',rc>=10]);
- return `<div class="row" style="margin-bottom:6px"><div class="av" aria-hidden="true">${ini(P.full_name)}</div><div class="g1"><h2>${esc(P.full_name)}</h2><p class="m">${LV[P.level]}${P.tutor_status==='pending'?', statut tuteur en cours de vérification':''}${ok?', tuteur vérifié':''}${P.tutor_status==='rejected'?', vérification non accordée':''}</p></div><button class="btn s o" onclick="logout()">Se déconnecter</button></div>
+ return `<div class="row" style="margin-bottom:6px"><div class="av" aria-hidden="true">${ini(P.full_name)}</div><div class="g1"><h2>${esc(P.full_name)}</h2><p class="m">${LV[P.level]}${P.tutor_status==='pending'?'':''}${ok?', tuteur':''}${P.tutor_status==='rejected'?', statut tuteur retiré':''}</p></div><button class="btn s o" onclick="logout()">Se déconnecter</button></div>
 <div class="stats"><div><b>${n}</b>séances</div><div><b>${hs}</b>heures</div>${tu?`<div><b>${rc}</b>ressources publiées</div>`:`<div><b>${Math.max(1,Math.floor(n/4))}</b>niveau</div>`}</div>
 ${ok?`<h3 style="margin-top:22px">Mon profil de tuteur</h3><label for="pb">Présentation</label><textarea id="pb" rows="3" maxlength="500" placeholder="Qui es-tu, comment peux-tu aider ?">${esc(P.bio||'')}</textarea>
 <label for="ps">Matières (séparées par des virgules)</label><input id="ps" maxlength="200" value="${esc(P.subjects||'')}" placeholder="Analyse, Algèbre, Probabilités"><button class="btn s" style="margin-top:12px" onclick="saveProf()">Enregistrer</button>
 <h3 style="margin-top:26px">Mes disponibilités, chaque semaine</h3><p class="m">Les étudiants réservent des séances de 30 minutes dans ces plages horaires.</p>
 ${sortAv(av).map(a=>`<div class="card row" style="margin-top:10px"><span class="g1">${DAYS[a.weekday]}, de ${hm(a.start_time)} à ${hm(a.end_time)}</span><button class="btn s ko" onclick="delAv('${a.id}')">Retirer</button></div>`).join('')}
 <div class="avf"><div><label for="aw">Jour</label><select id="aw">${WD.map(d=>`<option value="${d}">${DAYS[d]}</option>`).join('')}</select></div><div><label for="as">De</label><input id="as" type="time" step="1800" value="10:00"></div><div><label for="ae">À</label><input id="ae" type="time" step="1800" value="12:00"></div><button class="btn s" onclick="addAv()">Ajouter</button></div>`
- :tu?`<p class="note">Ton statut de tuteur est en cours de vérification. Une fois validé, tu pourras ajouter des ressources et indiquer tes disponibilités.</p>`:''}
+ :tu?`<p class="note">Ton statut de tuteur n’est pas actif sur ce compte. Contacte l’équipe YNJ Campus.</p>`:''}
 <h3 style="margin-top:26px">Badges</h3><div class="bdgs">${B.map(b=>`<div class="bd ${b[2]?'':'lock'}"><div class="a2">${ic('star')}</div><b>${b[0]}</b><p class="m">${b[1]}</p></div>`).join('')}</div>`};
 async function saveProf(){const bio=$('#pb').value.trim()||null,subjects=$('#ps').value.trim()||null;
  const{error}=await sb.from('profiles').update({bio,subjects}).eq('id',P.id);if(error)return toast(error.message);P.bio=bio;P.subjects=subjects;toast('Profil enregistré.')}
